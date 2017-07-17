@@ -1,0 +1,2 @@
+"0","p <- ggplot(iris, aes(Sepal.Length, Sepal.Width))"
+"0","p + geom_point()"

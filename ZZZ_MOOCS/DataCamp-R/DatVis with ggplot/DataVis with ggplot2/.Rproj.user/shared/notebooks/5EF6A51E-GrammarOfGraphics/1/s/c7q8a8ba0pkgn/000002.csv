@@ -1,0 +1,3 @@
+"0","# The standard result uses ""stack"""
+"0","ggplot(mtcars, aes(cyl, fill=factor(am))) + "
+"0","  geom_bar()"

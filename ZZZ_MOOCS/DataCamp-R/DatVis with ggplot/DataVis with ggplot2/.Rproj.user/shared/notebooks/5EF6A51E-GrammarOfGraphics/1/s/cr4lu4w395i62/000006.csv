@@ -1,0 +1,2 @@
+"0","ggplot(diamonds, aes(clarity, carat, col=price)) + "
+"0","  geom_point(alpha=0.5)"

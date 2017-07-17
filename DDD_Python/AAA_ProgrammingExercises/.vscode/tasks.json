@@ -1,0 +1,9 @@
+{
+    "version": "0.1.0",
+    "command": "python",
+    "windows": {
+        "command": "python.exe"
+    },
+    "showOutput": "always",
+    "args": ["${file}"]
+}

@@ -1,0 +1,21 @@
+"0","```r
+require(tidyr)
+# Cleaning the dataset
+iris.tidy <- iris %>% 
+      gather(key, Value, -Species) %>% 
+      separate(key, c(\"Part\", \"Measure\"), \"\\.\")
+# Inspecting the dataset
+str(iris.tidy)
+```"
+"1","'data.frame':	600 obs. of  4 variables:
+ $ Species: Factor w/ 3 levels \"setosa\",\"versicolor\",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ Part   : chr  \"Sepal\" \"Sepal\" \"Sepal\" \"Sepal\" ...
+ $ Measure: chr  \"Length\" \"Length\" \"Length\" \"Length\" ...
+ $ Value  : num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
+"
+"0","```r
+# Drawing the plot
+ggplot(iris.tidy, aes(Species, Value, col=Part)) + 
+  geom_jitter() +
+  facet_grid(. ~ Measure)
+```"

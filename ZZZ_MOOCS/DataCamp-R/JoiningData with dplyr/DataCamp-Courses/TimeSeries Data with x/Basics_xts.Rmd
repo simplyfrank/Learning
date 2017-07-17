@@ -1,0 +1,443 @@
+---
+title: "Working TimeData in R"
+output: html_notebook
+---
+```{r}
+require(xts)
+require(dplyr)
+require(readr)
+```
+
+
+
+```{r}
+data(sunspots)
+data()
+sunspots_xts <- as.xts(sunspots)
+
+# Investigating the difference
+sunspots_xts
+
+# Extracting the core data
+core <- coredata(sunspots_xts)
+class(core)
+core
+
+# Extracting the stimestamps
+stamps <-  index(sunspots_xts)
+class(stamps)
+stamps
+
+# Head and Tail functions to inspect dataset
+first(sunspots_xts, "2 months")
+last(sunspots_xts, "year")
+
+# Basic subsetting in xts
+sunspots_xts["198301/05"]
+
+sunspots_xts[seq(sunspots_xts, "19830101", steps=5)]
+```
+
+```{r}
+## S3 method for class
+'
+xts
+'
+as.xts(x,...,.RECLASS=FALSE)
+## S3 method for class
+'
+timeSeries
+'
+as.xts(x, dateFormat="POSIXct", FinCenter, recordIDs,
+title, documentation, ..., .RECLASS=FALSE)
+## S3 method for class
+'
+its
+'
+as.xts(x,...,.RECLASS=FALSE)
+## S3 method for class
+'
+zoo
+'
+as.xts(x, order.by=index(x), frequency=NULL, ..., .RECLASS=FALSE)
+## S3 method for class
+'
+ts
+'
+as.xts(x, dateFormat,...,.RECLASS=FALSE)
+## S3 method for class
+'
+data.frame
+'
+as.xts(x, order.by, dateFormat="POSIXct",
+frequency=NULL, ...,.RECLASS=FALSE)
+## S3 method for class
+'
+matrix
+'
+as.xts(x, order.by, dateFormat="POSIXct",
+frequency=NULL, ..., .RECLASS=FALSE)
+```
+
+
+### Transforming DateTime objects
+```{r}
+
+# Getting start and endpoints for a given daterange
+.parseISO8601("2000")
+
+#  start of 2000, end of 2001
+.parseISO8601("2000/2001")
+
+# May1, 2000 to end of Feb 2001
+.parseISO8601("2000-05/2001-02")
+
+# Jan1, 2000 to Feb 29, 2000 || Truncated shorthand notation!!
+.parseISO8601("200001/02")
+
+# 8:30 am to 15:00
+.parseISO8601("T08:30/T15:00")
+
+```
+
+### Aligning Time : `align.time()`
+lign seconds, minutes, and hours to beginning of next period.
+```{r}
+# Generate Timeset in second range
+index <-  Sys.time() + seq(1,60*60*24*150, 10)
+values <- rnorm(length(index), 20000, 2500)
+x <- as.xts(values, index)
+hist(x)
+
+# change to 10 sec intervals
+head(align.time(x, 5), 10)
+hist(x)
+
+
+# align to whole minute
+head(align.time(x, 60),10)
+
+# alig to 2 minutes (always have to pass numeric values!!!)
+head(align.time(x, 2*60), 10)
+
+# align to every half hour
+head(align.time(x, 30*60), 10)
+
+```
+
+### Apply function over time periods:
+```{r}
+apply.daily()
+apply.weekly()
+apply.monthly()
+apply.quarterly()
+apply.yearly()
+
+```
+
+
+### Lags and Differences of xts Objects: `diff.xts()`
+
+```{r}
+
+## S3 method for class
+lag(x, k = 1, na.pad = TRUE, ...)
+
+# xts
+diff(x, lag = 1, differences = 1, arithmetic = TRUE, log = FALSE, na.pad = TRUE, ...)
+
+# Example Code
+x <- xts(1:10, Sys.Date()+1:10)
+lag(x)    # currently using xts-style positive k
+lag(x, k=2)
+lag(x, k=-1, na.pad=FALSE) # matches lag.zoo(x, k=1)
+
+# 
+round(diff(x),2)
+
+# 
+diff(x, lag=1)
+
+# 
+diff(x, diff=2)
+
+# 
+diff(diff(x))
+x[1:10]
+last(x, "2 hours")
+```
+
+Arguments to function call:
+
+- `k` :                   period to lag over
+- `differences` :         order of differencing
+- `arithmetic` :          should arithmetic or geometric differences be used?
+
+
+### endpoints: Locate Endpoints by Time
+
+Extract index values of a given xts object corresponding to the
+last observations given a period specified by on.
+
+```{r}
+x
+endpoints(x)
+
+endpoints(x, "weeks")
+first(sunpoints_xts, 10)
+```
+
+#### first(), last() : Subsetting Timeobjects on time
+```{r}
+first(1:100)
+last(1:100)
+LakeHuron
+data(LakeHuron)
+first(LakeHuron,10)
+last(LakeHuron)
+x <- xts(1:100, Sys.Date()+1:100)
+x
+first(x, 10)
+
+# 
+first(x, "1 days")
+
+# 
+first(x, "4 days")
+```
+
+
+```{r}
+# use the proper combination of split, lapply and rbind
+temps_1 <- do.call(rbind, lapply(split(temps, "weeks"), function(w) last(w, n = "1 day")))
+
+# create last_day_of_weeks using endpoints()
+last_day_of_weeks <- endpoints(temps, "weeks")
+
+# subset temps using last_day_of_weeks 
+temps_2 <- temps[last_day_of_weeks]
+```
+
+### Time series aggregation
+
+Usefol to convert a univariate series to range bars
+
+```{r}
+to.period(x, 
+          period="months",
+          k = 1,
+          indexAt, 
+          name = NULL, 
+          OHLC = NULL)
+
+# Aggregate data over time periods set as endpoints
+to.period(edhec["1997/2001", 1], "years", name="EDHEC")
+
+# Set the Aggregate to be calculated at the beginning of the period
+to.period(edhec["1997/2001", 1], "years", name="EDHEC", indexAt = "firstof")
+```
+
+### Downsampling data with Dataranges
+
+- force a univariate seris in `to.period()`
+```{r}
+# OHLC = FALSE
+to.period(object[, j], period = "years",
+          name="NAME", OHLC = FALSE)
+
+# Apply method
+to.period(edhec[,1], period="years", name="EDHEC", OHLC = FALSE)
+```
+
+- extract the period values directly
+```{r}
+# Extract directly
+object[endpoints(object, "years"), j]
+
+# Application of this procedure
+edhec[endpoints(edhec, "years"), 1]
+```
+
+
+### Rolling function : Apply windwing functions to time series data
+
+Discrete rolling windows
+
+- `split` to break up by period
+- `lapply` cumulative functions
+        - sumsum, cumprod, cummin, cummax
+
+```{r}
+# First split the data into chunks by setting f="timeperiod"
+edhec.yrs <- split(edhec[,1], f="years")
+
+# Then apply over the resulting list a cummulative function
+edhec.yrs <- lapply(edhec.yrs, cumsum)
+
+# Then `rbind` the values back together
+edhec.ytd <- do.call(rbind, edhec.yrs)
+
+# 
+cbind(edhec.ytd, edhec[,1]["2007-10/2008-03"])
+```
+
+**Continous rolling** with the `rollapply()` function in R :
+
+This applies a cummalative function over a fixed window, adding and droping the nex/last observation as the window is rolled over the list passed as data.
+
+- `data` is the xts object
+- `width` is the window size to be applied
+
+```{r}
+# Syntax for the rollapply function
+rollapply(data, width, FUN, ...,
+          by = 1, by.column = TRUE, 
+          fill = if(na.pad) NA, 
+          na.pad = TRUE, partial = TRUE, 
+          align = c("right", "center", "left")
+
+```
+
+Application examples:
+```{r}
+# Applying a rolling mean over the data from 2007/01 - 2007/08 taking one observation prior or after the current value.
+rollapply(edhec["200701/08", 1], 3, mean)
+```
+
+Calculating cumsum over years:
+```{r}
+# Split edhec into years
+edhec_years <- split(edhec , f = "years")
+
+# Use lapply to calculate the cumsum for each year in edhec_years
+edhec_ytd <- lapply(edhec_years, FUN = cumsum)
+
+# Use do.call to rbind the results
+edhec_xts <- do.call(rbind, edhec_ytd)
+```
+
+
+## Looking at the internal function of XTS
+
+### What is the index internally?
+
+All Dates are stored as fractional seconds since "1970-01-01 UTC". The index takes this numeric values, to create the data datetime object xts. 
+
+
+- `tzone` or `indexTZ`:  represents the Timezone attribute
+- `tclass` or `indexClass` :  represents the attribute for extraction
+- `indexFormat`: optional display pereferences
+
+```{r}
+indexClass(Z)
+
+indexTZ(Z)
+
+indexFormat(Z) <- "%b ,%d, %Y"
+```
+
+### Working with TimeZones
+
+Timezones describe time offset from UTC(aka Greenwich Mean Time)
+
+- Always set your time zone to avoid surprises!
+
+```{r}
+Sys.setenv(TZ = "America/Chicago")
+Sys.setenv(TZ = "Europe/Vienna")
+
+# Set two timestamps with different TZ sets 
+ts_vienna <- Sys.time()
+ts_chicago <- Sys.time()
+
+# compare the timestamps
+ts_vienna
+ts_chicago
+```
+
+```{r}
+# Check the index class used
+indexClass(temps)
+
+# Check the timezone used
+indexTZ(temps)
+
+# Change the format for time display
+indexFormat(temps) <- "%d/%m/%Y"
+```
+
+Workint timezones
+```{r}
+# Construct times_xts with tzone set to America/Chicago
+times_xts <- xts(1:10, order.by = times, tzone = "America/Chicago")
+
+# Change the time zone of times_xts to Asia/Hong_Kong
+tzone(times_xts) <- "Asia/Hong_Kong" 
+  
+# Extract the current time zone of times_xts
+indexTZ(times_xts)
+```
+
+
+## Periods, Periodicity and Timestamps
+
+### Periodicity
+
+- Identifies the regularity of data
+- Answers: what type of data is present
+- Less usefull for irregular timestamps
+- Summary measure for the Index
+
+```{r}
+# Check the regularity of the dataset
+periodicity(sunspots_xts)
+
+# Check on regularity when changing chunksize
+periodicity(to.yearly(sunspots_xts))
+
+# Used as a s
+```
+
+Counting periods:
+
+- Estimate number of periods(e.g. days, weeks, etc..)
+- Irregular series equals irregular counting
+- Counting periods greater than periodicity
+
+```{r}
+nseconds(x)
+nminutes(x)
+nhours(x)
+ndays(x)
+nweeks(x)
+nmonths(x)
+nquarters(x)
+nyears(x)
+```
+
+
+
+```{r}
+# the see number of seconds since 1970-01-01T00:00
+.index(sunspots_xts)
+
+# returns the endpoints for a given range in seconds passed sinces 1970-01-01T00:00
+.indexday(sunspots_xts)
+.indexweek(sunspots_xts)
+
+```
+
+Removing duplicate entries from the index with `make.unique.index()`
+```{r}
+# Make z have unique timestamps
+z_unique <- make.index.unique(z, eps = 1e-4)
+z
+z_unique
+# Remove duplicate times in z
+z_dup <- make.index.unique(z, drop = TRUE)
+z_dup
+# Round observations in z to the next time
+z_round <- align.time(z, n = 60)
+
+```
+

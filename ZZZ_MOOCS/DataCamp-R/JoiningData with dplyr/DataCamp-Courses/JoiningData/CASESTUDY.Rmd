@@ -1,0 +1,275 @@
+---
+title: "Joining Data in R - Casestudy"
+output: html_notebook
+---
+
+
+## This is the worktrough with the **Lahman's Baseball Database** from the DataCammp Course
+
+```{r}
+install.packages("Lahman")
+require(Lahman)
+require(dplyr)
+require(dtplyr)
+require(purrr)
+```
+
+# Data Structure: Inspection and making sense
+```{r}
+# Setting up the dataset
+data("LahmanData")
+
+# Storing views on the dataset
+data_nobs <- arrange(structure(data), desc(nobs))
+data_vars <- arrange(structure(data), desc(nvar))
+
+# Inspecting the datatables individually
+data("LahmanData")
+Lahman
+```
+First we check if there is a common `strong-ID` to connect all the individual data.frames
+```{r}
+require(purrr)
+
+# Use the reduce function to work on all data.frames in a vectorized fashion. We apply the `intersect()` function
+reduce(data, intersect)
+```
+We see: There is no common ID spanning all data.frames
+But there are individual connecting IDs binding the datasets to each other. We can use this to automatically bind all information into a single datatable to perform the analysis
+
+```{r}
+data %>% 
+        bind_rows(.id="dataframe") %>% 
+        group_by(var) %>% 
+        summarise(n = n()) %>% 
+        filter(n>1) %>% 
+        arrange(desc(n))
+```
+Looking up in which of the tables, the `playerID` variable is present
+```{r}
+data %>%
+        bind_rows(.id="dataframe") %>% 
+        filter(var=="playerID") %>% 
+        `$`(dataframe)                  # This gets a column of the subset directly
+
+# Exemplifying the use of the `$` in a pipe
+data(iris)
+iris %>% select(starts_with("Sepal")) %>% 
+        filter(Sepal.Width > quantile(Sepal.Width, 0.5)) %>% 
+        `$`(Sepal.Width)
+```
+
+## Looking at the Salaries
+
+When interested in analyzing a persons salarie for over- or underpayment, we would have to first inspect the dataset for selection bias and skewness. 
+
+We will utilize the following `dplyr` functions:
+
+- `distinct()`                    Returns table with duplicates removed         
+- `count(vars = value)`          Counts the number of occurences. Given the vars argument, it returns the count for matches
+
+```{r, eval=FALSE, include=FALSE}
+count(iris, vars=Species)
+
+# count(names, vars=band) is equivalent to...
+iris %>% group_by(Species) %>% 
+        summarise(n())
+
+
+```
+
+### Subsetting on unique entries
+```{r}
+# Looking for the list of all players, and their associated IDs
+players <- Master %>% 
+                select(playerID, nameFirst, nameLast) %>% 
+                distinct()
+
+players
+```
+
+We see that we have data for 18.589 individual players in this dataset
+
+Lets check if we have salary information for all players, or if we are fighting a bias in dataselection...maybe...
+```{r}
+players %>% anti_join(Salaries) %>% 
+        count()
+```
+Well, we are missing Salary data for 13768 players in the dataset. 
+```{r}
+missing_salaries <- count(anti_join(players, Salaries)) / count(players)
+sprintf("This amounts to %s percent of our data missing Salaries.",round(missing_salaries,3))
+```
+
+Now that we know there is a huge hole in the salary data, let's see if we can explain it. Is it possible that these players somehow did not play (and hence did not earn a salary)?
+```{r}
+# Using anti_join. These players are neither in the Salaries nor in the Appearance Dataset
+forgotten_players <- players %>% 
+                anti_join(Salaries, by="playerID") %>% 
+                anti_join(Appearances, by="playerID") %>% 
+                count()
+
+# Using semi_join. These players are not in the Salaries, but they did take part in games
+unpaid_players <- players %>% 
+        anti_join(Salaries, by="playerID") %>% 
+        semi_join(Appearances, by="playerID") %>% 
+        count()
+
+message(sprintf("So we have %s unpaid players who never played, and %s players that went unpaid for their games",
+                forgotten_players,
+                unpaid_players))
+```
+
+Maybe the unpaid players did not continue playing and as such did not receive a full salary to be recorded.
+```{r}
+players %>% 
+        anti_join(Salaries, by="playerID") %>% 
+        left_join(Appearances, by="playerID") %>% 
+        group_by(playerID) %>% 
+        summarize("total_games" = sum(G_all, na.rm=TRUE)) %>% 
+        arrange(desc(total_games))
+
+
+```
+
+Many of the players appeared in thousands of games, so our theory is wrong.Lets check if they acutally played in the games they appeared in. We can check this looking at the `at-bat` variable.
+```{r}
+players %>% 
+        anti_join(Salaries, by="playerID") %>% 
+        left_join(Batting, by="playerID") %>% 
+        group_by(playerID) %>% 
+        summarize("total_games"=sum(AB, na.rm=TRUE)) %>% 
+        arrange(desc(total_games))
+
+
+```
+
+Alright, so all these players participated in many games actively, and are well known and high payed professionals. 
+We are definatly dealing with missing data in this dataset.
+
+## Introducing the hall of fame
+
+Players are selected to become Members of the Baseball Hall of Fame based on recommendations from their peers. 
+There are many different theories about what distinguishes a Hall of Fame player from his peers. 
+
+We will now have a closer look at this:
+
+### Looking at the application statistics
+
+As with any hall of fame, more players are nominated for membership than are actually admitted.
+
+#### Getting all nominees
+Let's see how many players have been nominated for the hall of fame.
+```{r}
+# Finding the distinct players in HallOfFame
+nominated <-
+        HallOfFame %>%
+        distinct(playerID)
+
+# Number of nominated players
+nominated %>% 
+        count()
+
+# Complete the data with the players names, and surnames
+nominated_full <- nominated %>% 
+        left_join(Master, by="playerID") %>% 
+        select(playerID, nameFirst, nameLast)
+
+# Return the full list of nominated players
+nominated_full
+```
+
+#### Getting all inducted players
+```{r}
+# Get all inducted players
+inducted <-
+        HallOfFame %>% 
+        filter(inducted=="Y") %>% 
+        select(playerID) %>% 
+        distinct()
+
+# Count the number of inducted players
+inducted %>% 
+        count()
+
+# Only store the relevant information about the players
+inducted_full <- inducted %>%
+        left_join(Master, by="playerID") %>% 
+        select(playerID, nameFirst, nameLast)
+
+# Return the complete Dataset
+inducted_full
+```
+
+
+```{r}
+sprintf("The acceptance ratio for the Hall of Fame is %s percent overall", (as.integer(count(inducted))/as.integer(count(nominated))) %>% 
+                round(.,2))
+```
+
+### Awards : Investigating possible reasons for induction
+
+Maybe the amount of Awards earned by a player is a decisive factor. We will explore the data to investigate this relationship.
+
+```{r}
+# Counting the number of awards per player
+nAwards <- count(AwardsPlayers, playerID)
+
+# Returning the mean awards for players inducted in the Hall of Fame
+nAwards %>% semi_join(inducted, by="playerID") %>% 
+        summarize(avg_n = mean(n, na.rm=TRUE))
+
+# Returning the mean n of awards for players nominated for the Hall of Fame
+nAwards %>% semi_join(nominated, by="playerID") %>%
+        anti_join(inducted, by="playerID") %>% 
+        summarize(avg_n = mean(n, na.rm=TRUE))
+
+```
+
+### Salaries: 
+
+Might provide another way to differentiate the two groups.
+```{r}
+
+# Check who was nominated but was not inducted
+notInducted <- nominated %>%
+        setdiff(inducted, by="playerID")
+
+
+# Calculate the Salaries for nominated players
+Salaries %>% 
+        semi_join(notInducted) %>% 
+        group_by(playerID) %>% 
+        summarize(max_salary=max(salary)) %>% 
+        summarize(mean(max_salary, na.rm=TRUE))
+
+# max average salaries for the inducted players
+Salaries %>% 
+        semi_join(inducted, by="playerID") %>% 
+        group_by(playerID) %>% 
+        summarize(max_salary = max(salary)) %>% 
+        summarize(mean(max_salary, na.rm=TRUE))
+```
+
+
+What is wrong with our data? The Salry difference does not seem to be very explanatory?
+One rule of the Hall of Fame is that people can not be nominated till 5 years after their retirement. 
+
+Is this reflected in our data?
+
+#### Last year of appearance : Analyzing the Appearances dataframe
+```{r}
+
+```
+```{r}
+Appearances %>% 
+        semi_join(nominated, by="playerID") %>% 
+        group_by(playerID) %>% 
+        summarize(last_year = max(yearID)) %>% 
+        left_join(HallOfFame, by="playerID") %>% 
+        filter(last_year >= yearID) %>% 
+        mutate(overtime = last_year - yearID) %>% 
+        select(playerID, overtime, last_year, yearID) %>% 
+        arrange(desc(overtime))
+
+```
