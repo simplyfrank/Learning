@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+    </head>
+    <body>
+        <!--<button is='pluralsight-button' ></button>-->
+
+     <script>
+         var Proto = Object.create(HTMLElement.prototype);
+ 
+        Proto.createdCallback = function() {
+            this.innerHTML = "Pluralsight Button";
+            this.style.color = 'orange';
+            this.style.padding = '5px';
+            this.style.border = '1px solid red';
+        };
+        
+        var PluralsightButton = document.registerElement('pluralsight-button', {
+            prototype: Proto,
+            extends: 'button'
+        });
+
+        var button  = document.createElement('button', 'pluralsight-button')
+        document.body.appendChild(button);
+     </script>
+    </body>
+</html>

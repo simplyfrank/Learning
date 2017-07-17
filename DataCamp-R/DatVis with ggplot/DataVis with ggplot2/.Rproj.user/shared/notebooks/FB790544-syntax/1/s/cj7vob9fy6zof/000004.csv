@@ -1,0 +1,5 @@
+"0","# Visualizing it"
+"0","ggplot(mammals, aes(body, brain)) +"
+"0","  geom_point() + "
+"0","  stat_smooth(method=""lm"", col=""red"","
+"0","              se=FALSE)"

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+    </head>
+    <body>
+        
+        <div id="host">
+            <h1>Title</h1>
+            <ul>
+                <li>First TEst</li>
+                <li>First TEst</li>
+                <li>First TEst</li>
+                <li>First TEst</li>
+                <li>First TEst</li>
+            </ul>
+        </div>
+
+        <template>
+            <content select="h1"></content>
+            <content select="ul"></content>
+        </template>
+
+        <script>
+            let host = document.querySelector('#host');
+            let root = host.createShadowRoot();
+            
+            let template = document.querySelector('template');
+            let clone = document.importNode(template.content, true);
+            root.appendChild(clone);
+
+            let destinationInsertionPoints = document.querySelector('ul').getDestinationInsertionPoints();
+            console.log(destinationInsertionPoints);
+        </script>
+    </body>
+</html>

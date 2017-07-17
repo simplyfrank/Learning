@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+        <link rel="import" href="allcoffees.html">
+
+        <style>
+            h1{ color: red;}
+        </style>
+    </head>
+    <body>
+        <h1>Hello World in the Light</h1>
+        <div id="host"></div>
+        <getUserMedia></getUserMedia>
+
+        <template>
+            <style>
+                h1 { color: green;}
+            </style>
+            <h1>Hello World from the Shadow</h1>
+        </template>
+        <script>
+            var template = document.querySelector('template');
+            //1. select a shadow host
+            var host = document.getElementById('host');
+
+            //2. Create a shadow root
+            var root = host.createShadowRoot();
+            //3. Add element
+            root.appendChild(document.importNode(template.content, true));
+
+            // Accessing the shadow dom elements
+
+            console.log(document.querySelector('h1'));
+            console.log(root.querySelector('h1'));
+
+        </script>
+    </body>
+
+</html>

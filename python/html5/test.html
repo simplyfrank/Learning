@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+    </head>
+    <body>
+        <comment-form></comment-form>
+
+
+        <template>
+            <fieldset>
+                <legend>
+                    <content select="h1"></content>
+                </legend>
+                <content select="p"></content>
+
+                <textarea rows="" cols=""></textarea>
+                <input type="submit" name="" value="Submit comment">
+                
+                <content select=".footer"></content>
+            </fieldset>
+        </template>
+
+        <script>
+            let CommentProto = Object.create(HTMLElement.prototype);
+            
+            CommentProto.createdCallback = function() {
+                let template = document.querySelector('template');
+                var shadow = this.createShadowRoot();
+                shadow.appendChild(document.importNode(template.content, true));
+            };
+
+            document.registerElement('comment-form', {
+                prototype: CommentProto
+            });
+        </script>
+    </body>
+</html>

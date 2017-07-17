@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+    </head>
+    <body>
+        
+        <form action="#" method="post" id="mainform">
+            <fieldset class="box">
+                <legend>Your Details</legend>
+                <div>
+                    <p>
+                        <label for="firstNameInput" class="textlabel"></label>
+                        <input type="text" name="firstNameInput" value="" class="textinput" maxlength="30" required="required">
+                    </p>
+                    <p>
+                        <label for="lastNameInput"> Last Name</label>
+                        <input type="text" size=10 name="lastName" maxlength="50" required="required">
+                    </p>
+                    <p>
+                        <label for="emailInput">Email</label>
+                        <input type="email"  required="required">
+                    </p>
+                    <p>
+                        <label for="emailInput">Email</label>
+                        <input type="phoneInput" required="required">
+                    </p>
+                    <p>
+                        <label for="emailInput">Email</label>
+                        <input type="zipInput" required="required">
+                    </p>
+                    <p>
+                        <label for="emailInput">Email</label>
+                        <input type="text" name="streetInput" required="required">
+                    </p>
+                    <p>
+                        <label for="emailInput">Country</label>
+                        <input type="text" name="country" pattern="[a-za-z]{3}" required="required">
+                    </p>
+                    <p>
+                        <label for="emailInput">Email</label>
+                        <input type="url">
+                    </p>
+                </div>
+            </fieldset>
+
+            <br>
+            <fieldset class="box">
+                <legend>Your order</legend>
+
+                <p>
+                    <label for="deliveryDateInput" class="textlabel">Requested delivery date</label>
+                    <input type="date">
+                </p>
+            </fieldset>
+        </form>
+    </body>
+</html>

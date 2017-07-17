@@ -1,0 +1,4 @@
+"0","# Using the ""width"" setting for the dodge command we can let them overlay"
+"0","pos_d <- position_dodge(width=0.2)"
+"0","ggplot(mtcars, aes(cyl, fill=factor(am))) + "
+"0","  geom_bar(position=pos_d, alpha=0.6)"

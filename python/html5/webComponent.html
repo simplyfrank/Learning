@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+    </head>
+    <body>
+        
+        
+        <ts-comment></ts-comment>
+        
+
+
+     <script>
+        var CommentProto = Object.create(HTMLElement.prototype);
+
+        CommentProto.createdCallback = function() {
+            this.innerHTML = `
+            <form method="post" action="#">
+                <h4>Comment</h4>
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <textarea rows="" cols=""></textarea>
+                    <br>
+                    <input type="submit" name="" value="Submit Post">
+                </div>
+            </form>
+            `;
+            this.style.color = 'red';
+        };
+
+        document.registerElement('ts-comment', {
+            prototype: CommentProto
+        })
+
+     </script>
+    </body>
+</html>

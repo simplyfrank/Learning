@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+    </head>
+    <body>
+        <template id="header">
+            <header>
+                The Header
+            </header>
+            <template id="body">
+                The Body
+            </template>
+        </template>
+
+
+        <script>
+            //Append the first template
+            var template = document.querySelector('#header');
+            var clone = document.importNode(template.content, true);
+            document.body.appendChild(clone);
+
+            //Append the second template
+            var template = document.querySelector('#body');
+            var clone = document.importNode(template.content, true);
+            document.body.appendChild(clone);
+
+        </script>
+    </body>
+</html>

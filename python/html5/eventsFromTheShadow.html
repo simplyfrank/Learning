@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+    </head>
+    <body>
+        <button id="lightDOM-button">Light DOM Button</button>
+
+        <div id="host">
+            put the Elements to be encapsulated here
+        </div>
+
+        <template>
+            <button id="shadowDOM-button">Shadow DOM Button</button>
+        </template>
+        
+        <script>
+            let host = document.querySelector('#host');
+            let root = host.createShadowRoot();
+
+            let template = document.querySelector('template');
+            let clone = document.importNode(template.content, true);
+            root.appendChild(clone);
+        </script>
+    </body>
+</html>

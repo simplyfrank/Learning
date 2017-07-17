@@ -1,0 +1,5 @@
+"0","# Displaying the initial dataset"
+"0","ggplot(data = iris, aes(Sepal.Length, Sepal.Width, colour=Species)) +  "
+"0","  geom_point() + "
+"0","  scale_x_continuous(expression(""Lenght (cm)"")) + "
+"0","  scale_y_continuous(expression(""Width(cm)""))"

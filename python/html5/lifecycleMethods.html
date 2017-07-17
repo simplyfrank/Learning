@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+    </head>
+    <body>
+        <hello-world></hello-world>
+        <script>
+            var Proto = Object.create(HTMLElement.prototype);
+            
+            // Called when first created
+            Proto.createdCallback = function() {
+                this.innerHTML = '<h1>Hello world</h1>';
+            };
+            // Called when it is displayed on the DOM
+            Proto.attachedCallback = function() {
+                console.log('attached');
+            };
+            //Called when removed from the DOM
+            Proto.detachedCallback = function() {
+                console.log('detached');
+            };
+
+            Proto.attributeChangedCallback = function(attrName, oldVal, newVal) {
+                console.log(attrName, oldVal, newVal);
+            }
+
+            var Hello = document.registerElement('hello-world', {
+                prototype: Proto
+            });
+
+            object = document.querySelector('hello-world');
+            object.setAttribute('test', 1);
+
+            object.remove();
+
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,84 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+### Tidying up Datasets
+
+```{r}
+require(dplyr)
+require(tidyr)
+require(Devtools)
+```
+
+```{r}!
+if(!require(DSR)){devtools::install_github("garrettgman/DSR")}
+
+table1
+table2
+table3
+table4
+table4a
+table5
+```
+```{r}
+library(DSR)
+```
+
+Tidying up table 2
+```{r}
+table2
+table2 %>% spread(key, value)
+
+```
+
+Tidying up table3
+```{r}
+table3
+table3 %>% separate(rate, into=c("cases", "population"))
+
+```
+
+Working table4
+```{r}
+table4
+table4 %>% gather("year", "cases", 2:3)
+```
+
+```{r}
+table3
+table3 %>% separate(rate, into=c("cases", "population"))
+```
+```{r}
+table3
+table6 <- table3 %>% separate(rate, into=c("cases", "population")) %>% separate(year, into=c("century", "year"), sep=2)
+table6
+```
+```{r}
+table6 %>% unite("new", century, year, sep="")
+```
+
+
+Working a casestudy
+```{r}
+View(who)
+who_tidy
+# Spread out the year column
+who_tidy <- who %>% gather("code", "value", 5:60)
+who_tidy
+who_tidy <- who_tidy %>% separate(code, into=c("new", "var", "sexage"))
+who_tidy
+who_tidy <- who_tidy %>% separate(sexage, into=c("sex", "age"), sep=1)
+who_tidy
+who_tidy %>% spread(var, value)
+```
+
+
+```{r}
+View(who)
+who %>% gather("code", "value", 5:60) %>% 
+        separate(code, into=c("new", "var", "sexage")) %>% 
+        separate(sexage, into=c("sex", "age"), sep=1) %>% 
+        spread(var, value)
+```
+

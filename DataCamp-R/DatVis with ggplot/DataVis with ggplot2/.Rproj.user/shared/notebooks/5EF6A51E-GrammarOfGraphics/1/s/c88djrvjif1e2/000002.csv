@@ -1,0 +1,7 @@
+"0","plot1 + "
+"0","  geom_hline(data = iris.summary, linetype=2, "
+"0","             aes(yintercept = Sepal.Width,"
+"0","                 col=Species)) + "
+"0","  geom_vline(data=iris.summary, "
+"0","             aes(xintercept = Sepal.Length, col=Species), "
+"0","             linetype=2)"

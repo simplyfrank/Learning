@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css"
+          integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+</head>
+<body>
+    <comment-form>
+        <h2>This is my new Form</h2>
+    </comment-form>
+  
+    
+    
+    <template id="comment-form-tmpl">
+        <section class="header">
+            <content select="h2"></content>
+        </section>
+        <form action="post" action="">
+            <div class="input-group">
+                <textarea name="comment" style="width: 400px; height:200px;"></textarea>
+            </div>
+            <input type="submit" value="Submit Comment">
+        </form>
+    </template>
+
+
+
+<script>
+    // create new prototype element: Either from base Object, or inherit from existing HTMLObject
+    let CommentProto = Object.create(HTMLElement.prototype);
+    // Open an on-creation Eventhandler with a callback
+    CommentProto.createdCallback = function() {
+        let template = document.getElementById('comment-form-tmpl');
+        // hook up the shadow dom on the template object
+        let shadow = this.createShadowRoot();
+        // Append the newly created Element to the Shadow
+        shadow.appendChild(document.importNode(template.content, true));  
+    };
+
+    // Register the new tag with the document
+    document.registerElement('comment-form', {
+        prototype: CommentProto
+    });
+
+</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"
+        integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+</body>
+</html>

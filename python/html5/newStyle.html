@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title></title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="css/style.css" rel="stylesheet">
+    </head>
+    <body>
+
+        <app-drawer>
+            <h2>The Title of my </h2>
+            <p class="body">The Body element </p>
+            something else
+        </app-drawer>
+
+        <template>
+            <header>
+                <content select="h2"></content>
+                <content select="p .body"></content>
+            </header>
+        </template>
+    
+    
+    <script>
+        class AppDrawer extends HTMLElement {
+
+            constructor() {
+                //set the defaults on the element
+                
+            }
+
+        }
+        window.customElement.define('app-drawer', AppDrawer);
+
+        let newDrawer = document.createElement('app-drawer');
+        let template = document.querySelector('template');
+        newDrawer.appendChild(template);
+        document.body.appendChild(newDrawer);
+
+
+        document.querySelector('app-drawer').addEventListener('open', function(){
+            console.log('App-drawer opened')
+        });
+    </script>
+    </body>
+</html>
