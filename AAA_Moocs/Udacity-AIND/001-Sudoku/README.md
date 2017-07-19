@@ -8,19 +8,25 @@ A: Constraint Propagation uses an interative application of a set of constrainin
 Naked Twins is a strategy to quickly reduce the necessary number of iterations of Constraint Progapagation leveraging the power of twin valued boxes during the last stage of problem solving for a neighborhood of values. 
 
 We identify a pair of boxes in the same neighborhood that hold identical values of length 2, and eliminate those from all neighboring peer-boxes.
-<img src='./image/naked-twins.png'>
+
+
+<img src='./images/naked-twins.png'>
 
 The Code implementation first created a list of lists containing the boxes at which a duplicate set of values with length 2 was found, iterated over them to identify their common neighboring boxes and removed the duplicated values from all of them. Key to a successfull solution proved to be the efficient creation of a joint set of peers as illustrated below.
-<img src='./images/code_nakedtwins.png'>
+
+
+<img src='./images/code_nakedtwins.PNG'>
 
 
 Naked_twins was used together with two other constraint strategies (only_choice) and (eliminate) to reach the solution.
 
-<img src='./images/code/eliminate.png'>
+
+<img src='./images/code_eliminate.PNG'>
+
 
 To solve complicated Sudoku Grids, an iterative 'depth first search' routine was used to create a recursive procedure to branch out of stagnant states of local minima in the constraint propagation logic. For efficiency, a stagnant state was broken at the square with the min number of possible values for branch creation. Each possible value was tried and solved using constraint propagation until a finishing state was reached. 
 
-<img src='Udacity-AIND/images/code_search.png'>
+<img src='./images/code_search.PNG'>
 
 
 # Question 2 (Diagonal Sudoku)
@@ -31,11 +37,11 @@ The additional rule introduced tells us to find a solution that also constraints
 
 First they needed to be represented as boxes.
 
-<img src='./images/code_diagonals.png'>
+<img src='./images/code_diagonals.PNG'>
 
 Then they where added to the overall unit representation.
 
-<img src='Udacity-AIND/images/addDiag.png'>
+<img src='./images/code_addDiag.PNG'>
 
 
 ### Install
