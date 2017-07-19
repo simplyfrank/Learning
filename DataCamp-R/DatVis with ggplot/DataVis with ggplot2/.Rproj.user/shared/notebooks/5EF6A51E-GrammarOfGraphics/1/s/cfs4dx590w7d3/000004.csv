@@ -1,3 +1,0 @@
-"0","# To conquer overplotting we specify the jitter"
-"0","ggplot(mtcars, aes(factor(cyl), wt)) + "
-"0","  geom_jitter()"

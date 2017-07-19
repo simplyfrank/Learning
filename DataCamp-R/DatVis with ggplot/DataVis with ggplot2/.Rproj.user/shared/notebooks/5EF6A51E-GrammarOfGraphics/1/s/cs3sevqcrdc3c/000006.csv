@@ -1,2 +1,0 @@
-"0","ggplot(mtcars, aes(wt, mpg, col=cyl)) + "
-"0","  geom_point(alpha=0.6, size=4)"

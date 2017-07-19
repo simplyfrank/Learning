@@ -1,4 +1,0 @@
-"0","# Now in custom colour"
-"0","myBlue <- ""#377EB8"" "
-"0","ggplot(mtcars, aes(mpg)) + "
-"0","  geom_histogram(binwidth=1, fill=myBlue, aes(y=..density..))"

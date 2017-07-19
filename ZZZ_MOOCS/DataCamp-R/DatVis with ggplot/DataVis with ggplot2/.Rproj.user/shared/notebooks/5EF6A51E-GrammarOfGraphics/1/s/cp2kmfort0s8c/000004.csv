@@ -1,6 +1,0 @@
-"0","# Import library"
-"0","if(!require(RColorBrewer)){install.packages(""RColorBrewer""); library(RColorBrewer)}"
-"0","# Create individual color scales"
-"0","blues <- brewer.pal(9, ""Blues"")"
-"0","blue_range <- colorRampPalette(blues)"
-"0","  "

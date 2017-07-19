@@ -1,6 +1,0 @@
----
-title: "Advanced DataVisualization with ggplot"
-output: html_notebook
----
-
-## Advanced DataVisualization with ggplot - Case Study

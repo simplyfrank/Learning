@@ -1,7 +1,0 @@
-"0","```r
-require(caret)
-
-```"
-"1","Loading required package: caret
-Loading required package: lattice
-"

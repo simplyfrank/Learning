@@ -1,4 +1,0 @@
-"0","# This displays a continous density curve"
-"0","ggplot(mtcars, aes(mpg)) + "
-"0","geom_histogram(stat = ""density"")"
-"2","Ignoring unknown parameters: binwidth, bins, pad"

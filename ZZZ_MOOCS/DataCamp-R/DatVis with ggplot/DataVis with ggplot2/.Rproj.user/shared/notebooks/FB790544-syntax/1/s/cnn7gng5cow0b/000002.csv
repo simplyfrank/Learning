@@ -1,2 +1,0 @@
-"0","ggplot(mtcars, aes(wt, mpg, size=disp)) + "
-"0","  geom_point()"

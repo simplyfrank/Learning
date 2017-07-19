@@ -1,2 +1,0 @@
-"0","ggplot(mtcars, aes(mpg, col=cyl)) + "
-"0","  geom_freqpoly(binwidth=1)"

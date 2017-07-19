@@ -1,5 +1,0 @@
-"0","mtcars$group <- 0"
-"0","# Plot the data against 0"
-"0","ggplot(mtcars, aes(mpg, group)) + "
-"0","  geom_jitter() + "
-"0","  scale_y_continuous(limits = c(-2,2))"

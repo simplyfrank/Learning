@@ -1,4 +1,0 @@
-"0","# We Define the position to use jitter"
-"0","posn.j <- position_jitter(widt=0.05)"
-"0","ggplot(mtcars, aes(factor(cyl), wt)) + "
-"0","  geom_point(position=posn.j)"

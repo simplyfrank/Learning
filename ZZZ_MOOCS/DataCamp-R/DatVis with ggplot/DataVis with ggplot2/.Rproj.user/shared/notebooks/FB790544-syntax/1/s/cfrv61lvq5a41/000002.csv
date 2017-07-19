@@ -1,3 +1,0 @@
-"0","# Drawing a subset plot with linear regression lines for the given dataset"
-"0","mtcars$cyl <- as.factor(mtcars$cyl)"
-"0","plot(mtcars$wt, mtcars$mpg, col = mtcars$cyl)"

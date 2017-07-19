@@ -1,4 +1,0 @@
-"0","ggplot(mtcars, aes(mpg, fill=factor(am))) + "
-"0","  geom_bar(binwidth=1,position=""dodge"") +"
-"0","  scale_fill_brewer()"
-"2","`geom_bar()` no longer has a `binwidth` parameter. Please use `geom_histogram()` instead."

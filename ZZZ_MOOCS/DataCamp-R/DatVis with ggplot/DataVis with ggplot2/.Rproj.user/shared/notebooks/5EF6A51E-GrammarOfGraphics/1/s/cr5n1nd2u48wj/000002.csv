@@ -1,5 +1,0 @@
-"0","data(iris)"
-"0","iris.summary <- aggregate(iris[1:4], list(iris$Species), mean)"
-"0","names(iris.summary)[1] <- ""Species"""
-"0","# Plotting the dataset"
-"0","plot1 + geom_point(data=iris.summary, shape=15, size=5, aes(col=Species))"

@@ -1,4 +1,0 @@
-"0","ggplot(mtcars, aes(wt, mpg, shape=disp)) + "
-"0","  geom_point()"
-"2","Error: A continuous variable can not be mapped to shape
-"
