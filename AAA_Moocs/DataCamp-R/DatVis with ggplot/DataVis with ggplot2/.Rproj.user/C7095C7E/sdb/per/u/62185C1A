@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "---\ntitle: \"Advanced DataVisualization with ggplot\"\noutput: html_notebook\n---\n\n## Advanced DataVisualization with ggplot - Themes\n\nThemes controll all non-data ink information for the plots.\nThese are all visual elements, not part of the data representation, and they consist of three parts:\n\n- text\n- line\n- rectangle\n\nThey are accessed by a standard nameing convention in ggplot:\n\n- element_text()\n- element_line()\n- element_rectangle()\n\n\n## First we look at the visual elements\n```{r}\niris.wide\n```\n",
+    "created" : 1481149339805.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "627694866",
+    "id" : "62185C1A",
+    "lastKnownWriteTime" : 2475636339810066802,
+    "last_content_update" : 1481149339805,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "chunk_output_type" : "inline",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 0,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

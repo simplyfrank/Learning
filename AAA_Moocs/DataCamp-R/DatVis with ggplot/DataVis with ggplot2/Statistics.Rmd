@@ -1,0 +1,252 @@
+---
+title: "Advanced DataVisualization with ggplot"
+output: html_notebook
+---
+
+```{r}
+require(ggplot2)
+```
+
+## Advanced DataVisualization with ggplot - Statistics
+
+Stats and Genomes
+
+There are two brought categories:
+
+- those called from within the geom 
+- those that are called indipendently
+
+Statistical layers are often already involved in basic Visualization Function in ggplot2.
+For example in the histogram geometric layer. 
+
+Under the hood this function calls the `stat_bin()` method to create the necessary table. 
+```{r}
+p <- ggplot(iris, aes(Sepal.Width))
+p <- p + geom_histogram()
+
+# Investigating the histogram object
+attributes(p)
+
+# Looking at the layers produces (We see there is a stat_bin layer involved)
+p$layers
+
+# Lets take a closer look. This can not be accessed directly
+p$layers[[1]]
+```
+Using the `ggplot_build()` function can help us get access to all intermediate results
+```{r}
+ggplot_build(p)$data
+```
+
+This leads to different possible implementations for the underlying calculation
+```{r}
+p <- ggplot(iris, aes(Sepal.Width))
+
+# As a histogram function 
+p + geom_histogram()
+
+# As a BarPlot
+p  + geom_bar()
+
+# Directly with the statistical function call
+p + stat_bin(bins = 30)
+```
+
+```{r}
+ggplot(mtcars, aes(mpg)) + 
+  geom_histogram( fill = "skyblue") + 
+  geom_freqpoly(col = "red")
+```
+
+### Calling the `stat_smooth()` Stats layer directly from within ggplot
+
+We are using the `geom_smooth()` to attribute the necessary variables to the calculation.
+
+```{r}
+# Fitting individual loess models per Species
+ggplot(iris, aes(Sepal.Width, Sepal.Length, col = Species)) + 
+  geom_point(position = position_jitter(width = 0.2), alpha = 0.5) + 
+  geom_smooth(method = "loess", se = TRUE, span = 0.9, alpha = 0.25)
+
+
+# Plotting the data to fit the "loess" sliding window mean calculation over all groups
+ggplot(iris, aes(Sepal.Width, Sepal.Length, col = Species, group = 1)) + 
+  geom_point(position = position_jitter(width = 0.2)) + 
+  geom_smooth(method = "loess", se = TRUE, span = 0.8, col = "black", lty = 2, alpha = 0.3)
+```
+
+All these fitted models are not predictive in themselfes. They only span the range of given values on the x-Axis. 
+
+To predict over the full range of x-values set, we can set the `fullrange = TRUE` argument. 
+```{r}
+ggplot(iris, aes(Sepal.Length, Sepal.Width, col = Species)) + 
+  geom_point(alpha = 0.6, position = position_jitter(width = 0.2)) + 
+  geom_smooth(method = "lm", fullrange = TRUE, alpha = 0.15)
+```
+
+These are all other existing stats functions we will encounter later:
+
+stat_  || geom_
+
+stat_bin() || geom_histogram()
+stat_bin() || geom_bar()
+stat_bin() || geom_freqpoly()
+stat_smooth() || geom_smooth()
+stat_boxplot() || geom_boxplot()
+stat_bindot() || geom_dotplot()
+stat_bin2d() || geom_bin2d()
+stat_binhex() || geom_hex()
+stat_contour() || geom_contour()
+stat_quantile() || geom_quantile()
+stat_sum() || geom_count()
+
+
+You never have to call these stat_functions directly in ggplot, but understanding their attributes and arguments will enable a more sophisticated control over their behaviour. Enabling better understanding of warning messages and dealing with the respective helpfiles associated with the `stats package`
+
+### Here are some exercises
+
+Plotting both grouped models and a general model
+```{r}
+
+
+# First we plot the basic dataplot
+ggplot(mtcars, aes(wt, mpg, col = factor(cyl))) +
+  
+# Then we add a grouped linear model
+  geom_point() + 
+  geom_smooth(method = "lm", se = F, fullrange = F) + 
+  
+# And then add an ungrouped model
+  geom_smooth(method = "loess", se = F, aes(group = 1, col = "All"), span = 0.7)
+```
+
+
+## Using statistics from outside the ggplot function
+
+Summary statistics, confidence interval calculations etc. can easily be included into the plot trough dedicated ggplot functions, transforming the table results into dataframes and changing their values to be joined into the underlying ggplot 2 calculation dataframes. 
+
+Most of the functions called here, are from the `Hmisc()` package. 
+
+```{r}
+require(Hmisc)
+
+# Calculating a 95% CI
+smean.cl.normal(xx)
+
+# ggplot2
+mean_cl_normal(xx)
+
+# Applying this to a plot, where it gets plugged into `stat_summary(fun.data= XXX ) argument
+ggplot(iris, aes(Species, Sepal.Length)) + 
+  stat_summary(fun.data = mean_cl_normal, width = 0.1)
+```
+
+These functions can give us information on the distribution of our data, useable when working with statistical tests in R, as those make assumptions about the underlying data.
+
+```{r}
+# Summarise y values at distinct x values
+stat_summary()
+
+# Compute y values from a function of x values
+stat_function()
+
+# Perform calculations for a quantile-quantile plot
+stat_qq()
+
+```
+
+
+
+## Calculating a normal distribution to check for model accordance in our data
+```{r}
+library(MASS)
+
+# We plot the normal density against the log linearly transformed dataset to visually inspect the data
+mam.new <- data.frame(body = log10(mammals$body))
+ggplot(mam.new, aes(body)) + 
+  geom_histogram(aes(y = ..density..), binwidth = 0.2) + 
+  geom_rug() + 
+  stat_function(fun = dnorm, colour = "red",
+                arg = list(mean = mean(mam.new$body),
+                           sd = sd(mam.new$body)))
+
+# Or we use the qqplot to graphically represent it
+mam.new$slope <- diff(quantile(mam.new$body, c(0.25, 0.75))) /
+  diff(qnorm(c(0.25, 0.75)))
+
+mam.new$int <- quantile(mam.new$body, 0.25) - mam.new$slope * qnorm(0.25)
+
+ggplot(mam.new, aes(sample = body)) + 
+  stat_qq()  + 
+  geom_abline(aes(slope = slope, intercept = int), col = "red")
+```
+
+```{r}
+# inspecting the dataset
+str(mtcars)
+
+# Changing the datatstructure
+mtcars$cyl <- as.factor(mtcars$cyl)
+mtcars$am <- as.factor(mtcars$am)
+
+# Define positions to be used
+posn.d <- position_dodge(width = 0.2)
+posn.jd <- position_jitterdodge(jitter.width = 0.1, dodge.width = 0.2)
+posn.j <- position_jitter(width = 0.2)
+
+# Creating plot basic
+wt.cyl.am <- ggplot(mtcars, aes(cyl, wt, col = am, fill = am, group = am))
+```
+
+Applying different stats to this database
+```{r}
+# Plot1: Jiittered, doged scatter plot with transparent points
+wt.cyl.am + 
+  geom_point(position = posn.jd, alpha = 0.6)
+
+# Plot2: Mean and SD - the easy way
+wt.cyl.am + 
+  geom_point(position = posn.d) + 
+  stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1))
+
+# Plot3: Mean and 95% CI - the easy way
+wt.cyl.am + 
+  geom_point(position = posn.d) + 
+  stat_summary(fun.data = mean_cl_normal)
+
+# Plot4: Mean and SD = with T-tipped error bars
+wt.cyl.am + 
+  stat_summary(geom = "point", fun.y = mean, 
+               position = posn.d) + 
+  stat_summary(geom = "errorbar", fun.data = mean_sdl,
+               position = posn.d, fun.args = list(mult = 1), width = 0.1)
+```
+
+
+We can use our own functions to pass to the `fun.data()` call:
+
+```{r}
+gg_range <- function(x){
+  data.frame(ymin = min(x),
+             ymax = max(x))
+}
+
+med_IQR <- function(x){
+  data.frame(y = median(x),
+             ymin = quantile(x)[2],
+             ymax = quantile(x)[4])
+}
+
+# Now we use these functions on the base plot
+wt.cyl.am + 
+  stat_summary(geom = "linerange", 
+               fun.data = med_IQR, position = posn.d, size = 3) + 
+  stat_summary(geom = "linerange", fun.data = gg_range,
+               position = posn.d, size = 3,
+               alpha = 0.4) + 
+  stat_summary(geom = "point", fun.y = median, 
+               position = posn.d, size = 3, 
+               col = "black", shape = "X")
+
+```
+

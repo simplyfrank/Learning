@@ -1,0 +1,5 @@
+"0","# Add more variables"
+"0","ggplot(mtcars, aes(wt, mpg, col = cyl_am, size = disp)) + "
+"0","  geom_point() + "
+"0","  scale_color_manual(values = myCol) + "
+"0","  facet_grid(gear ~ vs)"

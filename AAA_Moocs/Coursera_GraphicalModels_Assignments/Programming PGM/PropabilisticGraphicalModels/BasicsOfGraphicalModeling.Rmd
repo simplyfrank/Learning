@@ -1,0 +1,278 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Required Libraries
+```{r}
+if(!require("biocLite")){
+        source("http://bioconductor.org/biocLite.R")
+        biocLite()
+}
+if(!require("gRain")){install.packages("gRain")}
+install.packages("graph")
+require("gRbase")
+install.packages("gRbase")
+library(gRbase)
+install.packages("RBGL")
+install.packages("bioC")
+source("https://bioconductor.org/biocLite.R")
+biocLite("RBGL")
+biocLite("gRbase")
+biocLite("graph")
+biocLite("RUnit")
+biocLite("survival")
+biocLite("gRbase")
+```
+
+```{r}
+library(gRain)
+library(gRbase)
+library("Rgraphviz")
+biocLite()
+```
+
+First of all, we want to define a simple undirected graph with five variables a, b, c & d
+```{r}
+graph2 <- ug(~c:a:b)
+plot(graph2)
+
+graph3 <- ug(~a:b:c + c:d + d:b)
+plot(graph3)
+
+graph4 <- ug(~a:b:c + c:d)
+plot(graph4)
+```
+
+To visualize this graph we use: **Rgraphviz**
+```{r}
+# Plotting the graph with plot()
+daG1 <- dag(~a:b:c, ~b:c, ~c:d)
+plot(daG1)
+```
+
+### Setting values for the nodes
+```{r}
+#  First we define dhe values for each node
+machine_val <-  c("working", "broken")
+light_bulb_val <- c("good", "bad")
+
+# Then we define numerical values as percentages fo the two random variables
+machine_prob <- c(99,1)
+light_bulb_prob <- c(99,1,60,40)
+
+```
+
+Then we define the random variables with gRain
+```{r}
+# We create "conditional propability tables with the `cptable` command"
+M <- cptable(~machine, values=machine_prob, levels = machine_val)
+L <- cptable(~light_bulb|machine, values = light_bulb_prob, levels = light_bulb_val)
+```
+
+Next: We compile the model before we use it
+```{r}
+plist <- compileCPT(list(M,L))
+plist
+```
+We can access the models over its namespace
+```{r}
+names(plist)
+```
+```{r}
+plist$machine
+```
+```{r}
+plist$light_bulb
+```
+
+Now, we can ask the model for the `posterior propability` by first entering an evidence into the model
+```{r}
+net <- grain(plist)
+net2 <- setEvidence(net, evidence=list(light_bulb="bad"))
+```
+and then calculating the new propabilities, given the evidence
+```{r}
+querygrain(net2, nodes=c("machine"))
+```
+
+
+
+### Working more complex models
+After building a graphical model, one of the main tasks one wants to perform is putting questions and queries to the model. 
+There are many ways to use graphical models and the representation they give from a joint probability distribution.
+
+The main focus of this chapter is on introducing algorithms to query a distribution that uses the model and observations on a subset of variables in order to 
+discover the posterior probability distribution on another subset.
+
+There are two types of queries:
+
+- **Propabilistic queries** - to observe a subset of variables and compute the eposterior distribution over Z of the set X of variables.
+- **MAP queries** - to finde a join assignment to a subset of varaiables having the highes probability.
+
+The aim of this chapter is to introduce the main algorithms for solving the problem of inference exactly; that is, the problem of answering such queries. In general, the problem of inference boils down to finding a posterior distribution by applying the Bayes rule. 
+
+
+#### Working Examples: A medical expert system to diagnose tubercolosis
+```{r}
+# First: define the values for the nodes
+C <- c("true", "false")
+P <- c("true", "false")
+H <- c("true", "false")
+N <- c("true", "false")
+L <- c("low", "medium", "strong")
+M <- c("true", "false")
+Tub <- c("confirmed", "probable", "presumed", "negative")
+
+# Setting up the directed propabilistic model
+model1 <- dag(~Tubercolosis:MicrStudy)
+plot(model1)
+```
+```{r}
+val = c("true", "false")
+F = cptable(~F, values = c(10,90), levels=val)
+C = cptable(~C|F, values=c(10,90,20,80), levels=val )
+E = cptable(~E|F, values=c(50,50,30,70), level=val )
+A = cptable(~A|C, values=c(50,50,70,30), level=val)
+D = cptable(~D|E, values=c(60,40,70,30), level=val)
+B = cptable(~B|A:D, values=c(60,40,70,30,20,80,10,90), levels=val)
+```
+
+Because we have been giving the parents oF each variable every time we created a conditional probability table, we also have defined our graph completely. Therefore, the next step is to compute the junction tree. In most packages, computing the junction tree is done by calling one function because the algorithm just does everything at once:
+
+```{r}
+# This function compiles the CPT : "Conditional propability tree"
+plist <- compileCPT(list(F,E,C,A,D,B))
+plist
+```
+
+This is indeed the factorization of our distribution as stated before. If we want to check further we can look at the conditional probability table of a few variables:
+```{r}
+print(plist$f)
+print(plist$A)
+print(plist$B)
+```
+
+The second output is a bit more complex but if you look carefully you will see that you have two distributions: P(B|A,D=true) and P(B|A,D=false), which is a more readable presentation of P(B|A,D).
+
+Now we can create the graph and run the junction tree algorithm
+```{r}
+jtree <- grain(plist)
+jtree
+```
+```{r}
+plot(jtree)
+```
+
+At this point, you might think, "Is that all?" Well, yes it is. Now that you have the junction tree representation of the graph you can perform any possible inference. And moreover, you only need to compute the junction tree once. Then all queries can be computed with the same junction tree. Of course, if you change the graph, then you need to recompute the junction tree.
+
+#### Lets perform some basic queries
+```{r}
+# Calculating the marginal propability of f. This returns the prior tabes, as f has no parents
+querygrain(jtree, nodes=c("f"), type="marginal")
+```
+```{r}
+querygrain(jtree, nodes=c("C"), type = "marginal")
+```
+This is more interesting because it computes the marginal of C while we only stated the conditional distribution of C given F. We didn't need to have a complex algorithm such as the junction tree algorithm to compute such a small marginal. The variable elimination algorithm we saw earlier would be enough, too.
+
+But asking for the marginal of B, the variable elimination will not work because of the loop in the graph.
+The junction tree however will:
+```{r}
+querygrain(jtree, nodes=c("B"), type="marginal")
+```
+
+
+And we can ask for a more complex distribution, such as the **joint distribution** of B and A:
+```{r}
+querygrain(jtree, nodes=c("A", "B"), type="joint")
+```
+
+#### Calculating the posterior distributions given a fact about a node
+
+Now we want to observe a variable and compute the posterior distribution. Let's say F=true and we want to propagate down this information to the rest of the network:
+```{r}
+# Lets set F to be true
+jtree2 = setEvidence(jtree, evidence=list(F="true"))
+
+# And lets query the network again
+querygrain(jtree, nodes=c("F"), type = "marginal")
+# ...now changed to...
+querygrain(jtree2, nodes=c("F"), type="marginal")
+```
+
+This results in the following changes...
+```{r}
+# in variable A
+querygrain(jtree, nodes=c("A"), type="marginal")
+querygrain(jtree2, nodes=c("A"), type="marginal")
+
+# down to B
+querygrain(jtree, nodes=c("B"), type="marginal")
+querygrain(jtree2, nodes=c("B"), type="marginal")
+```
+### Setting more Evidence 
+```{r}
+jtree3 = setEvidence(jtree, evidence=list(F="true", A="false"))
+
+# calculating the change in B
+querygrain(jtree, nodes=c("C"), type="marginal")
+querygrain(jtree3, nodes=c("C"), type="marginal")
+```
+```{r}
+plot(s1 <- dag(~s1:c1:c5))
+s3 <- dag(~s3:c2:c5)
+s4 <- dag(~)
+```
+
+
+
+Learning the model from data 
+```{r}
+# We will work trough a shor exercise with this simple dataset
+data(iris)
+iris
+```
+Calculating the distribution over the discrete variable Species, using the dplyr package
+```{r}
+require(dplyr)
+require(plyr)
+daply(iris, .(Species),nrow) / nrow(iris)
+```
+
+This gives us a roughly uniform distribution of all entries over all three classes in the dataset
+```{r}
+barplot(daply(iris,.(Species),nrow)/nrow(iris))
+```
+
+
+Computing the conditional distribution P(SepalLength | Class) is the equivalent of computing all the mean and variance values for each value of the class variable.  It is done by running:
+```{r}
+daply(iris, .(Species), function(n){mean(n$Sepal.Length)} )
+```
+
+The variances of each distritubiton ondictioned on the class variable
+```{r}
+daply(iris, .(Species), function(n){var(n$Sepal.Length)})
+```
+
+ If we want to compute the same thing for discrete distributions, we could use the following code. 
+ 
+```{r}
+# We seperate the continous dataset into three ranges of 33% of all entries <- small, medium, large
+q <- quantile(iris$Sepal.Width, seq(0,1,.33))
+
+# then we create a new variable in the dataframe
+iris$dsw[ iris$Sepal.Width < q['33%']] <-  "small" 
+iris$dsw[ iris$Sepal.Width >= q['33%'] & iris$Sepal.Width < q['66%'] ] <-  "medium" 
+iris$dsw[ iris$Sepal.Width >= q['66%'] ] <-  "large"
+
+# Inspect the change
+iris
+```
+Now we can learn the conditional propability distribution for dsw given Species:
+```{r}
+p1 <- daply(iris, .(dsw, Species), function(n) nrow(n))
+p1
+```
+

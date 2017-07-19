@@ -1,0 +1,3 @@
+"0","# Chaning the y aes to density, searches for the density variable in the resulting internal stats table"
+"0","ggplot(mtcars, aes(mpg)) + "
+"0","  geom_histogram(binwidth=1, fill=""lightblue"", aes(y=..density..))"

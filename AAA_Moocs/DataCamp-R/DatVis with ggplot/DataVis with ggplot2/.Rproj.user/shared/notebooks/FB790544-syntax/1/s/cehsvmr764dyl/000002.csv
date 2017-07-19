@@ -1,0 +1,4 @@
+"0","ggplot(mtcars, aes(wt, mpg, col=cyl)) +"
+"0","  geom_point() + "
+"0","  geom_smooth(method=""lm"", se=FALSE) + "
+"0","  geom_smooth(method=""lm"", se=FALSE, aes(group=1), lty=2)"

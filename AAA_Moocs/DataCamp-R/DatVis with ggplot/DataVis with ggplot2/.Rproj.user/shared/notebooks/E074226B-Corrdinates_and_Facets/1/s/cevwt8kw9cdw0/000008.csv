@@ -1,0 +1,6 @@
+"0","  "
+"0","# Facet according on rows and columns."
+"0","ggplot(mtcars, aes(wt, mpg, col = cyl_am)) + "
+"0","  geom_point() + "
+"0","  scale_color_manual(values = myCol) + "
+"0","  facet_grid(gear ~ vs)"

@@ -1,0 +1,4 @@
+"0","# We can split based on columns, as above, or along the rows"
+"0","ggplot(iris, aes(Sepal.Length, Sepal.Width, col = Species)) + "
+"0","  geom_point() + "
+"0","  facet_grid(Species ~ .)"

@@ -1,0 +1,26 @@
+---
+title: "Advanced DataVisualization with ggplot"
+output: html_notebook
+---
+
+## Advanced DataVisualization with ggplot - Themes
+
+Themes controll all non-data ink information for the plots.
+These are all visual elements, not part of the data representation, and they consist of three parts:
+
+- text
+- line
+- rectangle
+
+They are accessed by a standard nameing convention in ggplot:
+
+- element_text()
+- element_line()
+- element_rectangle()
+
+
+## First we look at the visual elements
+```{r}
+iris.wide
+```
+

@@ -1,0 +1,3 @@
+"0","# Draw the lm model as line"
+"0","carModel <- lm(mpg ~ wt, data=mtcars)"
+"0","abline(carModel, lty=2)"
