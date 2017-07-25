@@ -1,6 +1,6 @@
 import operator
 
-def group_children(children, age_diff=5):
+def group_children(children, age_diff=12):
     """
     Accepts a dict of children {Name, Age in month} and groups them given a 
     maximum age difference
@@ -48,7 +48,19 @@ children = {
     'Nadia':54,
     'Alex': 60, 
     'Marco': 29, 
-    'Matthias': 70
+    'Matthias': 70,
+    'Hans2':38,
+    'Wustl2':44,
+    'Nadia2':54,
+    'Alex2': 60, 
+    'Marco2': 29, 
+    'Matthias2': 70,
+    'Hans3':38,
+    'Wustl3':44,
+    'Nadia3':54,
+    'Alex3': 60, 
+    'Marco3': 29, 
+    'Matthias3': 70,
 }
 
 group_children(children)
