@@ -25,7 +25,7 @@ def group_children(children, age_diff=12):
                 # print(age - min(groups[group].values()))
                 # The minimum age of this group is within acceptable limits
                 groups[group].update({name:age})
-                # print('Added child to existing group')
+                # print('Added child to existing group')asdfasdf
                 del name, age
                 # print(groups[group])
             else:
